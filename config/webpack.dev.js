@@ -22,6 +22,9 @@ const METADATA = webpackMerge(commonConfig({env: ENV}).metadata, {
   HMR: HMR
 });
 
+//# Environment Config Object
+var envConfig = require('./config.json');
+
 /**
  * Webpack configuration
  *
@@ -112,7 +115,8 @@ module.exports = function(options) {
           'ENV': JSON.stringify(METADATA.ENV),
           'NODE_ENV': JSON.stringify(METADATA.ENV),
           'HMR': METADATA.HMR,
-        }
+          'MONGO_URI': "mongodb://localhost:27017/ng2-admin-dev"
+        },        
       }),
 
       /**

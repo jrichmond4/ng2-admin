@@ -3,6 +3,18 @@ export const PAGES_MENU = [
     path: 'pages',
     children: [
       {
+        path: 'mongo',  // path for our page
+        data: { // custom menu declaration
+          menu: {
+            title: 'Mongo Page', // menu title
+            icon: 'ion-android-home', // menu icon
+            selected: false,
+            expanded: false,
+            order: 0
+          }
+        }
+      },
+      {
         path: 'dashboard',
         data: {
           menu: {

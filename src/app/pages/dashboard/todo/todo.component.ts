@@ -1,51 +1,85 @@
-import {Component, ViewEncapsulation} from '@angular/core';
-import {BaThemeConfigProvider} from '../../../theme';
+import { Component } from '@angular/core';
 
-import {TodoService} from './todo.service';
+import { TodoService } from './todo.service';
 
+// We `import` `http` into our `TodoService` but we can only
+// specify providers within our component
+//import {HTTP_PROVIDERS} from '@angular/http';
+
+// Import NgFor directive
+import { NgFor } from '@angular/common';
+
+// Create metadata with the `@Component` decorator
 @Component({
+  // HTML tag for specifying this component
   selector: 'todo',
-  encapsulation: ViewEncapsulation.None,
-  styles: [require('./todo.scss')],
-  template: require('./todo.html')
+  // Let Angular 2 know about `Http` and `TodoService`
+  //providers: [...HTTP_PROVIDERS, TodoService],
+  providers: [TodoService],
+  template: require('./todo.html'),
+  //encapsulation: ViewEncapsulation.None,
+  styles: [require('./todo.scss')]
 })
 export class Todo {
-  
-  public dashboardColors = this._baConfig.get().colors.dashboard;
 
-  public todoList:Array<any>;
-  public newTodoText:string = '';
+  // Initialize our `todoData.text` to an empty `string`
+  todoData = {
+    text: ''
+  };
 
-  constructor(private _baConfig:BaThemeConfigProvider, private _todoService:TodoService) {
-    this.todoList = this._todoService.getTodoList();
+  private todos: Array<Todo> = [];
 
-    this.todoList.forEach((item) => {
-      item.color = this._getRandomColor();
-    });
-  }
+  constructor(public todoService: TodoService) {
+    console.log('Todo constructor go!');
 
-  getNotDeleted() {
-    return this.todoList.filter((item:any) => {
-      return !item.deleted
-    })
-  }
+    //this.todos = [];
+    todoService.getAll()
+      // `Rxjs`; we subscribe to the response
+      .subscribe((res) => {
 
-  addToDoItem($event) {
-
-    if (($event.which === 1 || $event.which === 13) && this.newTodoText.trim() != '') {
-
-      this.todoList.unshift({
-        text: this.newTodoText,
-        color: this._getRandomColor(),
+        // Populate our `todo` array with the `response` data
+        this.todos = res;
+        // Reset `todo` input
+        this.todoData.text = '';
       });
-      this.newTodoText = '';
+  }
+
+  createTodo($event) {
+
+    if (($event.which === 1 || $event.which === 13) && this.todoData.text.trim() != '') {
+
+      this.todoService.createTodo(this.todoData)
+        .subscribe((res) => {
+
+          // Populate our `todo` array with the `response` data
+          this.todos = res;
+          // Reset `todo` input
+          this.todoData.text = '';
+        });
     }
   }
 
-  private _getRandomColor() {
-    let colors = Object.keys(this.dashboardColors).map(key => this.dashboardColors[key]);
+  deleteTodo(id) {
 
-    var i = Math.floor(Math.random() * (colors.length - 1));
-    return colors[i];
+    this.todoService.deleteTodo(id)
+      .subscribe((res) => {
+
+        // Populate our `todo` array with the `response` data
+        this.todos = res;
+      });
+  }
+
+  checkTodo(todo, $event) {
+    if ($event.target.localName == "input") {
+      todo.isChecked = !todo.isChecked;
+      this.todoService.checkTodo(todo)
+        .then()
+      //.subscribe((res) => {
+
+      // Populate our `todo` array with the `response` data
+      //this.todos = res;
+      //});
+      console.log(todo);
+    }
   }
 }
